@@ -9,7 +9,7 @@ Date : March 2022
 # import libraries
 import shap
 import joblib
-
+import time
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -64,7 +64,7 @@ def perform_eda(df):
 
     # save distribution plot of total trans ct values
     plt.clf()
-    sns.distplot(df['Total_Trans_Ct']);
+    sns.displot(df['Total_Trans_Ct'])
     plt.savefig('images/eda/total_trans_ct.png')
 
     # save correlation heatmap of input features
@@ -187,7 +187,7 @@ def feature_importance_plot(model, X_data, output_pth):
              None
     '''
     # Calculate feature importances
-    importances = model.best_estimator_.feature_importances_
+    importances = model.feature_importances_
     # Sort feature importances in descending order
     indices = np.argsort(importances)[::-1]
 
@@ -267,7 +267,7 @@ def train_models(X_train, X_test, y_train, y_test):
     plt.clf()
     explainer = shap.TreeExplainer(cv_rfc.best_estimator_)
     shap_values = explainer.shap_values(X_test)
-    shap.summary_plot(shap_values, X_test, plot_type="bar")
+    shap.summary_plot(shap_values, X_test, plot_type="bar", show=False)
     plt.savefig('images/results/model_shap_plot.png')
 
     ## 3. Store Model
@@ -277,21 +277,25 @@ def train_models(X_train, X_test, y_train, y_test):
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     file_path = "./data/bank_data.csv"
     print("==========")
     print("Importing data ...")
     df = import_data(file_path)
     print(df.columns)
-    print("Importing data [done]")
+    end_time = time.time()
+    print("Importing data [done] ", round(time.time()-start_time), " seconds")
     
     # perform eda 
     print("==========")
+    start_time = time.time()
     print("Performing EDA ...")
     perform_eda(df)
-    print("Performing EDA [done]")
+    print("Performing EDA [done] ", round(time.time()-start_time), " seconds")
 
     # encoding and feature engineeing
     print("==========")
+    start_time = time.time()
     print("Performing encoding and feature engineering ...")
     cat_columns = [
         'Gender',
@@ -304,18 +308,20 @@ if __name__ == "__main__":
     print(df.columns)
 
     X_train, X_test, y_train, y_test = perform_feature_engineering(df, response="Churn")
-    print("Performing encoding and feature engineering [done]")
+    print("Performing encoding and feature engineering [done] ", round(time.time()-start_time), " seconds")
 
     print("==========")
+    start_time = time.time()
     print("Training Logistic regression and random forest classifier models ...")
     train_models(X_train, X_test, y_train, y_test)
-    print("Training Logistic regression and random forest classifier models [done]")
+    print("Training Logistic regression and random forest classifier models [done] ", round(time.time()-start_time), " seconds")
 
     print("==========")
+    start_time = time.time()
     print("Loading models ...")
     rfc_model = joblib.load('./models/rfc_model.pkl')
     lr_model = joblib.load('./models/logistic_model.pkl')
-    print("Loading models [done]")
+    print("Loading models [done] ", round(time.time()-start_time), " seconds")
 
     keep_cols = ['Customer_Age', 'Dependent_count', 'Months_on_book',
             'Total_Relationship_Count', 'Months_Inactive_12_mon',
@@ -326,7 +332,7 @@ if __name__ == "__main__":
             'Income_Category_Churn', 'Card_Category_Churn']
     
     print("==========")
+    start_time = time.time()
     print("Generating feature importance plots for both models ...")
     feature_importance_plot(rfc_model, X_data=df[keep_cols], output_pth='images/results/rfc_feature_importance.png')
-    feature_importance_plot(lr_model, X_data=df[keep_cols], output_pth='images/results/lr_feature_importance.png')
-    print("Generating feature importance plots for both models [done]")
+    print("Generating feature importance plots for both models [done] ", round(time.time()-start_time), " seconds")
