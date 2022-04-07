@@ -97,5 +97,16 @@ Generating feature importance plots for both models [done]  0  seconds
 > python churn_script_logging_and_tests.py
 > cat logs/churn_library.log
 root - INFO - Testing import_data: SUCCESS
+root - INFO - Testing test_eda: SUCCESS
+root - INFO - Testing encoder_helper: SUCCESS
+root - INFO - Testing train_models: SUCCESS
+root - INFO - Final Test Result : Success 5/5
 
+## Failure case
+root - ERROR - Testing import_eda: The file wasn not found
+root - ERROR - [Errno 2] No such file or directory: './data/bank_data1.csv'
+root - INFO - Testing test_eda: SUCCESS
+root - INFO - Testing encoder_helper: SUCCESS
+root - INFO - Testing train_models: SUCCESS
+root - ERROR - Final Test Result : Failed 1/5
 ```
