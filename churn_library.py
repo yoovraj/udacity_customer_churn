@@ -1,4 +1,3 @@
-# library doc string
 """
 Module to use churn functions
 
@@ -73,7 +72,7 @@ def perform_eda(df):
     plt.savefig('images/eda/correlation.png')
 
 
-def encoder_helper(df, category_lst, response):
+def encoder_helper(df, category_lst, response="Churn"):
     '''
     helper function to turn each categorical column into a new column with
     propotion of churn for each category - associated with cell 15 from the notebook
@@ -87,9 +86,6 @@ def encoder_helper(df, category_lst, response):
     output:
             df: pandas dataframe with new columns for
     '''
-    # if the response string is empty, then use default "Churn" as the suffix
-    if response:
-        response = "Churn"
 
     # loop through each category for creating churn for that category
     for category in category_lst:
@@ -103,10 +99,11 @@ def encoder_helper(df, category_lst, response):
     return df
 
 
-def perform_feature_engineering(df, response):
+def perform_feature_engineering(df, keep_cols, response="Churn"):
     '''
     input:
               df: pandas dataframe
+              keep_cols : list of column names in dataframe which you want to use as input X
               response: string of response name
                     [optional argument that could be used for naming variables or index y column]
 
@@ -117,19 +114,9 @@ def perform_feature_engineering(df, response):
               y_test: y testing data
     '''
 
-    keep_cols = ['Customer_Age', 'Dependent_count', 'Months_on_book',
-                 'Total_Relationship_Count', 'Months_Inactive_12_mon',
-                 'Contacts_Count_12_mon', 'Credit_Limit', 'Total_Revolving_Bal',
-                 'Avg_Open_To_Buy', 'Total_Amt_Chng_Q4_Q1', 'Total_Trans_Amt',
-                 'Total_Trans_Ct', 'Total_Ct_Chng_Q4_Q1', 'Avg_Utilization_Ratio',
-                 'Gender_Churn', 'Education_Level_Churn', 'Marital_Status_Churn',
-                 'Income_Category_Churn', 'Card_Category_Churn']
     X = pd.DataFrame()
     X[keep_cols] = df[keep_cols]
 
-    # if the response string is empty, then use default "Churn" as the suffix
-    if response:
-        response = "Churn"
     y = df[response]
 
     # train test split
@@ -293,10 +280,10 @@ def train_models(X_train, X_test, y_train, y_test):
 
 if __name__ == "__main__":
     start_time = time.time()
-    file_path = "./data/bank_data.csv"
+    FILE_PATH = "./data/bank_data.csv"
     print("==========")
     print("Importing data ...")
-    df = import_data(file_path)
+    df = import_data(FILE_PATH)
     print(df.columns)
     end_time = time.time()
     print(
@@ -332,8 +319,15 @@ if __name__ == "__main__":
     df = encoder_helper(df, category_lst=cat_columns, response="Churn")
     print(df.columns)
 
+    KEEP_COLS = ['Customer_Age', 'Dependent_count', 'Months_on_book',
+                 'Total_Relationship_Count', 'Months_Inactive_12_mon',
+                 'Contacts_Count_12_mon', 'Credit_Limit', 'Total_Revolving_Bal',
+                 'Avg_Open_To_Buy', 'Total_Amt_Chng_Q4_Q1', 'Total_Trans_Amt',
+                 'Total_Trans_Ct', 'Total_Ct_Chng_Q4_Q1', 'Avg_Utilization_Ratio',
+                 'Gender_Churn', 'Education_Level_Churn', 'Marital_Status_Churn',
+                 'Income_Category_Churn', 'Card_Category_Churn']
     X_train, X_test, y_train, y_test = perform_feature_engineering(
-        df, response="Churn")
+        df, KEEP_COLS, response="Churn")
     print(
         "Performing encoding and feature engineering [done] ",
         round(
@@ -364,20 +358,12 @@ if __name__ == "__main__":
             start_time),
         " seconds")
 
-    keep_cols = ['Customer_Age', 'Dependent_count', 'Months_on_book',
-                 'Total_Relationship_Count', 'Months_Inactive_12_mon',
-                 'Contacts_Count_12_mon', 'Credit_Limit', 'Total_Revolving_Bal',
-                 'Avg_Open_To_Buy', 'Total_Amt_Chng_Q4_Q1', 'Total_Trans_Amt',
-                 'Total_Trans_Ct', 'Total_Ct_Chng_Q4_Q1', 'Avg_Utilization_Ratio',
-                 'Gender_Churn', 'Education_Level_Churn', 'Marital_Status_Churn',
-                 'Income_Category_Churn', 'Card_Category_Churn']
-
     print("==========")
     start_time = time.time()
     print("Generating feature importance plots for both models ...")
     feature_importance_plot(
         rfc_model,
-        X_data=df[keep_cols],
+        X_data=df[KEEP_COLS],
         output_pth='images/results/rfc_feature_importance.png')
     print(
         "Generating feature importance plots for both models [done] ",
